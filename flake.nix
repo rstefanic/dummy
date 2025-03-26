@@ -25,7 +25,7 @@
             # In 'nix develop', we don't need a copy of the source tree
             # in the Nix store.
             src = ./.;
-            vendorHash = null;
+            vendorHash = "sha256-Upqh+7bQ41UJ53UbM6O/RqRk34lb1gKdDp4FxFae8z4=";
           };
         });
 
