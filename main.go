@@ -38,13 +38,13 @@ func main() {
 
 	db, err := sql.Open("postgres", connString)
 	if err != nil {
-		panic("panic (sql.Open): " + err.Error())
+		panic("(sql.Open): " + err.Error())
 	}
 	defer db.Close()
 
 	err = db.Ping()
 	if err != nil {
-		panic("panic (db.Ping): " + err.Error())
+		panic("(db.Query): " + err.Error())
 	}
 
 	fmt.Println("All is good! Closing connection...")
