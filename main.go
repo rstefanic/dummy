@@ -1,8 +1,11 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"fmt"
+
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -23,4 +26,19 @@ func main() {
 	fmt.Println("name: ", name)
 	fmt.Println("user: ", user)
 	fmt.Println("pass: ", password)
+
+	connString := fmt.Sprintf("postgresql://%s:%s@%s/%s?sslmode=disable", user, password, host, name)
+
+	db, err := sql.Open("postgres", connString)
+	if err != nil {
+		panic("panic (sql.Open): " + err.Error())
+	}
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil {
+		panic("panic (db.Ping): " + err.Error())
+	}
+
+	fmt.Println("All is good! Closing connection...")
 }
