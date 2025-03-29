@@ -4,7 +4,10 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"strconv"
+	"strings"
 
+	"github.com/go-faker/faker/v4"
 	_ "github.com/lib/pq"
 )
 
@@ -97,7 +100,76 @@ func main() {
 		tableInfo = append(tableInfo, c)
 	}
 
-	for _, c := range tableInfo {
-		fmt.Println(c)
+	fmt.Println(generatePsqlInsertStatement(tableInfo, table))
+}
+
+func generatePsqlInsertStatement(tableInfo []ColumnInfo, tableName string) string {
+	var output strings.Builder
+	output.WriteString("INSERT INTO ")
+	output.WriteString(tableName)
+	output.WriteString(" (")
+
+	for i, col := range tableInfo {
+		if i > 0 {
+			output.WriteRune(',')
+		}
+
+		output.WriteString(col.name)
 	}
+
+	output.WriteString(") VALUES (")
+
+	for i, col := range tableInfo {
+		var value string
+
+		if i > 0 {
+			output.WriteRune(',')
+		}
+
+		switch col.udtName {
+		case "int4":
+			intVal, err := faker.RandomInt(0, 128, 1)
+			value = strconv.Itoa(intVal[0])
+			if err != nil {
+				panic("(faker.RandomInt for \"int4\"): " + err.Error())
+			}
+		case "text":
+			var sentence strings.Builder
+			sentence.WriteRune('\'')
+			sentence.WriteString(faker.Sentence())
+			sentence.WriteRune('\'')
+			value = sentence.String()
+		case "_text":
+			var sentence strings.Builder
+			sentence.WriteString("'{\"")
+			sentence.WriteString(faker.Sentence())
+			sentence.WriteString("\"}'")
+			value = sentence.String()
+		case "timestamp":
+			var timestamp strings.Builder
+			timestamp.WriteRune('\'')
+			timestamp.WriteString(faker.Timestamp())
+			timestamp.WriteRune('\'')
+			value = timestamp.String()
+		case "json", "jsonb":
+			value = `'{ "a": "1", "b": "2" }'`
+		case "bool":
+			intVal, err := faker.RandomInt(1, 2, 1)
+			if err != nil {
+				panic("(faker.RandomInt for \"boolean\"): " + err.Error())
+			}
+
+			boolean := (intVal[0] % 2) == 0
+			if boolean {
+				value = "true"
+			} else {
+				value = "false"
+			}
+		}
+
+		output.WriteString(value)
+	}
+
+	output.WriteString(");")
+	return output.String()
 }
