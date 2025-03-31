@@ -17,6 +17,7 @@ func main() {
 		user      string
 		password  string
 		tableName string
+		count     int
 	)
 
 	flag.StringVar(&host, "host", "127.0.0.1", "The host to connect to.")
@@ -24,6 +25,7 @@ func main() {
 	flag.StringVar(&user, "user", "root", "The user/role in the DB to connect with.")
 	flag.StringVar(&password, "password", "", "The password of the user/role to connect with.")
 	flag.StringVar(&tableName, "table", "", "The table that you want to create data dummy for.")
+	flag.IntVar(&count, "count", 10, "The number of rows of dummy data to generate.")
 	flag.Parse()
 
 	fmt.Println("host: ", host)
@@ -76,7 +78,7 @@ func main() {
 		table.Columns = append(table.Columns, c)
 	}
 
-	err = table.CreateData(10)
+	err = table.CreateData(count)
 	if err != nil {
 		panic(err)
 	}
