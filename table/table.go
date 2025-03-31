@@ -12,7 +12,7 @@ import (
 type Table struct {
 	Name       string
 	Columns    []Column
-	InsertRows []map[string]string
+	InsertRows [][]string
 }
 
 func New(name string) *Table {
@@ -46,7 +46,7 @@ type Column struct {
 
 func (t *Table) CreateData(count int) error {
 	for range count {
-		row := make(map[string]string)
+		var row []string
 
 		for _, col := range t.Columns {
 			var value string
@@ -94,7 +94,7 @@ func (t *Table) CreateData(count int) error {
 				return errors.New("UDT Currently unsupported: " + col.UdtName)
 			}
 
-			row[col.Name] = value
+			row = append(row, value)
 		}
 
 		t.InsertRows = append(t.InsertRows, row)
@@ -126,13 +126,13 @@ func (t *Table) ToPsqlStatement() string {
 
 		output.WriteRune('(')
 
-		for j, col := range t.Columns {
-			value := t.InsertRows[i][col.Name]
+		current := t.InsertRows[i]
+		for j, row := range current {
 			if j > 0 {
 				output.WriteRune(',')
 			}
 
-			output.WriteString(value)
+			output.WriteString(row)
 		}
 
 		output.WriteRune(')')
