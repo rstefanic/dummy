@@ -60,7 +60,6 @@ func main() {
 	}
 	defer rows.Close()
 
-
 	for rows.Next() {
 		var c t.Column
 		err := rows.Scan(&c.Name, &c.OrdinalPosition, &c.ColumnDefault, &c.IsNullable,
@@ -76,6 +75,11 @@ func main() {
 		}
 
 		table.Columns = append(table.Columns, c)
+	}
+
+	err = table.FillMetadata()
+	if err != nil {
+		panic(err)
 	}
 
 	err = table.CreateData(count)

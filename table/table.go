@@ -11,6 +11,7 @@ import (
 
 type Table struct {
 	Name       string
+	metadata   metadata
 	Columns    []Column
 	InsertRows [][]string
 }
@@ -19,6 +20,10 @@ func New(name string) *Table {
 	return &Table{
 		Name: name,
 	}
+}
+
+type metadata struct {
+	identityColumns []int
 }
 
 type Column struct {
@@ -42,6 +47,20 @@ type Column struct {
 	IdentityMaximum        sql.NullInt32
 	IdentityMinimum        sql.NullInt32
 	IsUpdateable           string
+}
+
+func (t *Table) FillMetadata() error {
+	if len(t.Columns) == 0 {
+		return errors.New("Columns on table " + t.Name + " is empty")
+	}
+
+	for i, col := range t.Columns {
+		if col.IsIdentity == "YES" {
+			t.metadata.identityColumns = append(t.metadata.identityColumns, i)
+		}
+	}
+
+	return nil
 }
 
 func (t *Table) CreateData(count int) error {
