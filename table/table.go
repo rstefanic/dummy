@@ -3,6 +3,7 @@ package table
 import (
 	"database/sql"
 	"errors"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -68,6 +69,10 @@ func (t *Table) CreateData(count int) error {
 		var row []string
 
 		for _, col := range t.Columns {
+			if col.IsIdentity == "YES" {
+				continue
+			}
+
 			var value string
 
 			switch col.UdtName {
@@ -124,37 +129,53 @@ func (t *Table) CreateData(count int) error {
 
 func (t *Table) ToPsqlStatement() string {
 	var output strings.Builder
+
 	output.WriteString("INSERT INTO ")
 	output.WriteString(t.Name)
 	output.WriteString(" (")
 
-	for i, col := range t.Columns {
-		if i > 0 {
-			output.WriteRune(',')
-		}
+	// Write out the column names
+	{
+		written := 0
+		for i, col := range t.Columns {
+			// Skip identity columns since we've already
+			// generated the data without this column
+			if slices.Contains(t.metadata.identityColumns, i) {
+				continue
+			}
 
-		output.WriteString(col.Name)
+			if written > 0 {
+				output.WriteRune(',')
+			}
+
+			output.WriteString(col.Name)
+			written += 1
+		}
 	}
 
 	output.WriteString(") VALUES ")
 
+	// Build the main part of the insert statement from the generated data
 	for i := range len(t.InsertRows) {
 		if i > 0 {
 			output.WriteRune(',')
 		}
 
-		output.WriteRune('(')
+		// Build the current row
+		{
+			output.WriteRune('(')
+			written := 0
+			for _, row := range t.InsertRows[i] {
+				if written > 0 {
+					output.WriteRune(',')
+				}
 
-		current := t.InsertRows[i]
-		for j, row := range current {
-			if j > 0 {
-				output.WriteRune(',')
+				output.WriteString(row)
+				written += 1
 			}
 
-			output.WriteString(row)
+			output.WriteRune(')')
 		}
-
-		output.WriteRune(')')
 	}
 
 	output.WriteRune(';')
