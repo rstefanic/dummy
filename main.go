@@ -52,7 +52,7 @@ func main() {
 		numeric_precision_radix, numeric_scale, datetime_precision, udt_name,
 		is_self_referencing, is_identity, identity_generation, identity_start,
 		identity_increment, identity_maximum, identity_minimum, is_updatable
-		FROM information_schema.columns WHERE table_name = $1`, tableName)
+		FROM information_schema.columns WHERE table_name = $1 ORDER BY ordinal_position`, tableName)
 
 	if err != nil {
 		panic("(db.Query): " + err.Error())
