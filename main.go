@@ -37,6 +37,7 @@ func main() {
 	if tableName == "" {
 		panic("argument \"table\" is required")
 	}
+	var table = t.New(tableName)
 
 	connString := fmt.Sprintf("postgresql://%s:%s@%s/%s?sslmode=disable", user, password, host, name)
 
@@ -59,7 +60,6 @@ func main() {
 	}
 	defer rows.Close()
 
-	var table = t.New(tableName)
 
 	for rows.Next() {
 		var c t.Column
