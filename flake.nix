@@ -29,6 +29,29 @@
           };
         });
 
+      checks = forAllSystems (system:
+        let
+          pkgs = nixpkgsFor.${system};
+        in
+        {
+          default = pkgs.nixosTest {
+            name = "Integration Test";
+
+            nodes = {
+              postgres = import ./test/postgres;
+              client = import ./test/client.nix;
+            };
+
+            testScript = ''
+              start_all()
+              postgres.wait_for_open_port(5432)
+
+              client.succeed('dummy --host postgres --name postgres --user postgres --table todos --count 3')
+            '';
+          };
+        }
+      );
+
       defaultPackage = forAllSystems (system: self.packages.${system}.dummy);
     };
 }
