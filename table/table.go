@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/go-faker/faker/v4"
+	"github.com/brianvoe/gofakeit/v7"
 )
 
 type Table struct {
@@ -77,39 +77,31 @@ func (t *Table) CreateData(count int) error {
 
 			switch col.UdtName {
 			case "int4":
-				intVal, err := faker.RandomInt(0, 128, 1)
-				value = strconv.Itoa(intVal[0])
-				if err != nil {
-					return errors.New("(faker.RandomInt for \"int4\"): " + err.Error())
-				}
+				intVal := gofakeit.Int()
+				value = strconv.Itoa(intVal)
 			case "text":
 				var sentence strings.Builder
 				sentence.WriteRune('\'')
-				sentence.WriteString(faker.Sentence())
+				sentence.WriteString(gofakeit.Sentence(10))
 				sentence.WriteRune('\'')
 				value = sentence.String()
 			case "_text":
 				var sentence strings.Builder
 				sentence.WriteString("'{\"")
-				sentence.WriteString(faker.Sentence())
+				sentence.WriteString(gofakeit.Sentence(10))
 				sentence.WriteString("\"}'")
 				value = sentence.String()
 			case "timestamp":
 				var timestamp strings.Builder
 				timestamp.WriteRune('\'')
-				timestamp.WriteString(faker.Timestamp())
+				timestamp.WriteString(gofakeit.Date().Format("%d-%02d-%02d"))
 				timestamp.WriteRune('\'')
 				value = timestamp.String()
 			case "json", "jsonb":
 				value = `'{ "a": "1", "b": "2" }'`
 			case "bool":
-				intVal, err := faker.RandomInt(1, 2, 1)
-				if err != nil {
-					return errors.New("(faker.RandomInt for \"boolean\"): " + err.Error())
-				}
-
-				boolean := (intVal[0] % 2) == 0
-				if boolean {
+				boolVal := gofakeit.Bool()
+				if boolVal {
 					value = "true"
 				} else {
 					value = "false"
