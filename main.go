@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"math/rand/v2"
 
 	"github.com/brianvoe/gofakeit/v7"
 	_ "github.com/lib/pq"
@@ -28,7 +29,7 @@ func main() {
 	flag.StringVar(&password, "password", "", "The password of the user/role to connect with.")
 	flag.StringVar(&tableName, "table", "", "The table that you want to create data dummy for.")
 	flag.IntVar(&count, "count", 10, "The number of rows of dummy data to generate.")
-	flag.IntVar(&seed, "seed", 0, "Set the seeder used to generate the output.")
+	flag.IntVar(&seed, "seed", rand.Int(), "Set the seeder used to generate the output.")
 	flag.Parse()
 
 	fmt.Println("host: ", host)
