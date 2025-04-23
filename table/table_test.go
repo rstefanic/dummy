@@ -21,7 +21,7 @@ func createFakeColumn(name string, ordinalPosition int, isNullable bool, udtName
 		col.IsNullable = "NO"
 	}
 
-	if isIdentity{
+	if isIdentity {
 		col.IsIdentity = "YES"
 	} else {
 		col.IsIdentity = "NO"
@@ -62,11 +62,11 @@ func TestToPsqlStatement(t *testing.T) {
 	table := createFakeTable("fake_table")
 	table.FillMetadata()
 
-	table.InsertRows = append(table.InsertRows, []string{"Bill Bob", "2025-04-12 10:00:00 UTC"})
-	table.InsertRows = append(table.InsertRows, []string{"Jim George", "2025-04-12 10:00:00 UTC"})
+	table.InsertRows = append(table.InsertRows, []string{"DEFAULT", "Bill Bob", "2025-04-12 10:00:00 UTC"})
+	table.InsertRows = append(table.InsertRows, []string{"DEFAULT", "Jim George", "2025-04-12 10:00:00 UTC"})
 
 	actual := table.ToPsqlStatement()
-	expected := "INSERT INTO fake_table (name,created_at) VALUES (Bill Bob,2025-04-12 10:00:00 UTC),(Jim George,2025-04-12 10:00:00 UTC);"
+	expected := "INSERT INTO fake_table (id,name,created_at) VALUES (DEFAULT,Bill Bob,2025-04-12 10:00:00 UTC),(DEFAULT,Jim George,2025-04-12 10:00:00 UTC);"
 
 	if strings.Compare(actual, expected) != 0 {
 		t.Errorf("Expected:\n%s\n\nGot:\n%s", expected, actual)

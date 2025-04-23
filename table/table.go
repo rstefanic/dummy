@@ -55,12 +55,6 @@ func (t *Table) FillMetadata() error {
 		return errors.New("Columns on table " + t.Name + " is empty")
 	}
 
-	for i, col := range t.Columns {
-		if col.IsIdentity == "YES" {
-			t.metadata.identityColumns = append(t.metadata.identityColumns, i)
-		}
-	}
-
 	return nil
 }
 
@@ -70,6 +64,7 @@ func (t *Table) CreateData(count int) error {
 
 		for _, col := range t.Columns {
 			if col.IsIdentity == "YES" {
+				row = append(row, "DEFAULT")
 				continue
 			}
 

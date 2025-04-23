@@ -40,7 +40,7 @@
               "pass:  "
               "table:  todos"
               "seed:  1"
-              "INSERT INTO todos (id,task,complete,created_at) VALUES (9172393864939720632,'Their turn have her formerly honour while Bismarckian example product.',false,'%d-%29d-%29d'),(424577099883569842,'My government not regularly children constantly judge turkey whoa what.',false,'%d-%25d-%25d'),(5560765190427624264,'Later include hand certain aircraft village skip his he yesterday.',true,'%d-%06d-%06d');\n"
+              "INSERT INTO todos (id,task,complete,created_at) VALUES (DEFAULT,'Change itself still I world without that myself how below.',false,'%d-%11d-%11d'),(DEFAULT,'How bored light what nearby regularly children constantly judge turkey.',false,'%d-%07d-%07d'),(DEFAULT,'Year never you hand her hand certain aircraft village skip.',false,'%d-%17d-%17d');\n"
             ]
           );
         in
