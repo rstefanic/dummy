@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"flag"
 	"fmt"
 	"math/rand/v2"
@@ -9,6 +8,7 @@ import (
 	"github.com/brianvoe/gofakeit/v7"
 	_ "github.com/lib/pq"
 
+	"dummy/postgresql"
 	t "dummy/table"
 )
 
@@ -46,43 +46,17 @@ func main() {
 
 	gofakeit.Seed(seed)
 
-	connString := fmt.Sprintf("postgresql://%s:%s@%s/%s?sslmode=disable", user, password, host, name)
-
-	db, err := sql.Open("postgres", connString)
+	psqlDb, err := postgresql.New(user, password, host, name)
 	if err != nil {
-		panic("(sql.Open): " + err.Error())
+		panic("(postgresql.New): " + err.Error())
 	}
-	defer db.Close()
+	defer psqlDb.Close()
 
-	rows, err := db.Query(`SELECT
-		column_name, ordinal_position, column_default, is_nullable, data_type,
-		character_maximum_length, character_octet_length, numeric_precision,
-		numeric_precision_radix, numeric_scale, datetime_precision, udt_name,
-		is_self_referencing, is_identity, identity_generation, identity_start,
-		identity_increment, identity_maximum, identity_minimum, is_updatable
-		FROM information_schema.columns WHERE table_name = $1 ORDER BY ordinal_position`, tableName)
-
+	columns, err := psqlDb.GetTableColumns(tableName)
 	if err != nil {
-		panic("(db.Query): " + err.Error())
+		panic("(postgresql.GetTableData): " + err.Error())
 	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var c t.Column
-		err := rows.Scan(&c.Name, &c.OrdinalPosition, &c.ColumnDefault, &c.IsNullable,
-			&c.DataType, &c.CharacterMaximumLength, &c.CharacterOctetLength,
-			&c.NumericPrecision, &c.NumericPrecisionRadix, &c.NumericScale,
-			&c.DatetimePrecision, &c.UdtName, &c.IsSelfReferencing,
-			&c.IsIdentity, &c.IdentityGeneration, &c.IdentityStart,
-			&c.IdentityIncrement, &c.IdentityMaximum, &c.IdentityMinimum,
-			&c.IsUpdateable)
-
-		if err != nil {
-			panic("(rows.Scan): " + err.Error())
-		}
-
-		table.Columns = append(table.Columns, c)
-	}
+	table.Columns = columns
 
 	err = table.FillMetadata()
 	if err != nil {
