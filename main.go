@@ -14,13 +14,14 @@ import (
 
 func main() {
 	var (
-		host      string
-		name      string
-		user      string
-		password  string
-		tableName string
-		count     int
-		seed      int
+		host              string
+		name              string
+		user              string
+		password          string
+		tableName         string
+		count             int
+		seed              int
+		hideInputComments bool
 	)
 
 	flag.StringVar(&host, "host", "127.0.0.1", "The host to connect to.")
@@ -30,14 +31,8 @@ func main() {
 	flag.StringVar(&tableName, "table", "", "The table that you want to create data dummy for.")
 	flag.IntVar(&count, "count", 10, "The number of rows of dummy data to generate.")
 	flag.IntVar(&seed, "seed", rand.Int(), "Set the seeder used to generate the output.")
+	flag.BoolVar(&hideInputComments, "hide-input-comments", false, "Write the input information as a comment in the output.")
 	flag.Parse()
-
-	fmt.Println("host: ", host)
-	fmt.Println("name: ", name)
-	fmt.Println("user: ", user)
-	fmt.Println("pass: ", password)
-	fmt.Println("table: ", tableName)
-	fmt.Println("seed: ", seed)
 
 	if tableName == "" {
 		panic("argument \"table\" is required")
@@ -66,6 +61,16 @@ func main() {
 	err = table.CreateData(count)
 	if err != nil {
 		panic(err)
+	}
+
+	if !hideInputComments {
+		fmt.Println("-- host:", host)
+		fmt.Println("-- name:", name)
+		fmt.Println("-- user:", user)
+		fmt.Println("-- pass:", password)
+		fmt.Println("-- table:", tableName)
+		fmt.Println("-- seed:", seed)
+		fmt.Println("")
 	}
 
 	fmt.Println(table.ToPsqlStatement())

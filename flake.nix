@@ -34,12 +34,13 @@
           pkgs = nixpkgsFor.${system};
           expected = pkgs.lib.strings.concatStrings (
             pkgs.lib.strings.intersperse "\n" [
-              "host:  postgres"
-              "name:  postgres"
-              "user:  postgres"
-              "pass:  "
-              "table:  todos"
-              "seed:  1"
+              "-- host: postgres"
+              "-- name: postgres"
+              "-- user: postgres"
+              "-- pass: "
+              "-- table: todos"
+              "-- seed: 1"
+              ""
               "INSERT INTO todos (id,task,complete,created_at) VALUES (DEFAULT,'Change itself still I world without that myself how below.',false,'%d-%11d-%11d'),(DEFAULT,'How bored light what nearby regularly children constantly judge turkey.',false,'%d-%07d-%07d'),(DEFAULT,'Year never you hand her hand certain aircraft village skip.',false,'%d-%17d-%17d');\n"
             ]
           );
