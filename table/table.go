@@ -117,6 +117,38 @@ func fakeData(datatype, udt string) (string, error) {
 		} else {
 			return "false", nil
 		}
+	case "decimal", "numeric":
+		charset := "0123456789"
+		maxPreDeicmalLen := 131072
+		maxPostDecimalLen := 16383
+		preDecimalLen := gofakeit.IntRange(1, maxPreDeicmalLen)
+		postDecimalLen := gofakeit.IntRange(1, maxPostDecimalLen)
+
+		val := make([]byte, preDecimalLen+1+postDecimalLen) // +1 for the decimal character
+		i := 0
+		j := 0
+
+		for j < preDecimalLen {
+			val[i] = charset[gofakeit.IntRange(0, len(charset)-1)]
+			i += 1
+			j += 1
+		}
+
+		val[i] = '.'
+		i += 1
+
+		j = 0
+		for j < postDecimalLen {
+			val[i] = charset[gofakeit.IntRange(0, len(charset)-1)]
+			i += 1
+			j += 1
+		}
+
+		return string(val), nil
+	case "double precision":
+		// PSQL double precision has 15 digits of precision
+		val := strconv.FormatFloat(gofakeit.Float64(), 'f', 15, 64)
+		return val, nil
 	case "integer":
 		intVal := gofakeit.Int16()
 		return strconv.FormatInt(int64(intVal), 10), nil
@@ -144,6 +176,10 @@ func fakeData(datatype, udt string) (string, error) {
 		json.WriteString(strings.ReplaceAll(string(jsonRaw), "'", "''")) // escape single quotes
 		json.WriteRune('\'')
 		return json.String(), err
+	case "real":
+		// PSQL real has 6 digits of precision
+		val := strconv.FormatFloat(gofakeit.Float64(), 'f', 6, 32)
+		return val, nil
 	case "serial":
 		serialVal := gofakeit.IntRange(1, math.MaxInt32)
 		return strconv.FormatInt(int64(serialVal), 10), nil

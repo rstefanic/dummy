@@ -3,6 +3,8 @@ package table
 import (
 	"strings"
 	"testing"
+
+	"github.com/brianvoe/gofakeit"
 )
 
 func createFakeColumn(name string, ordinalPosition int, isNullable bool, udtName string, isIdentity bool) *Column {
