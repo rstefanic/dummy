@@ -70,41 +70,35 @@ func (t *Table) CreateData(count int) error {
 
 			var value string
 
-			switch col.UdtName {
-			case "int4":
-				intVal := gofakeit.Int()
-				value = strconv.Itoa(intVal)
-			case "text":
-				var sentence strings.Builder
-				sentence.WriteRune('\'')
-				sentence.WriteString(gofakeit.Sentence(10))
-				sentence.WriteRune('\'')
-				value = sentence.String()
-			case "_text":
-				var sentence strings.Builder
-				sentence.WriteString("'{\"")
-				sentence.WriteString(gofakeit.Sentence(10))
-				sentence.WriteString("\"}'")
-				value = sentence.String()
-			case "timestamp":
-				var timestamp strings.Builder
-				timestamp.WriteRune('\'')
-				timestamp.WriteString(gofakeit.Date().Format("%d-%02d-%02d"))
-				timestamp.WriteRune('\'')
-				value = timestamp.String()
-			case "json", "jsonb":
-				json, err := gofakeit.JSON(nil)
-				if err != nil {
-					return err
-				}
-				value = string(json)
-			case "bool":
+			switch col.DataType {
+			case "boolean":
 				boolVal := gofakeit.Bool()
 				if boolVal {
 					value = "true"
 				} else {
 					value = "false"
 				}
+			case "integer":
+				intVal := gofakeit.Int()
+				value = strconv.Itoa(intVal)
+			case "json", "jsonb":
+				json, err := gofakeit.JSON(nil)
+				if err != nil {
+					return err
+				}
+				value = string(json)
+			case "text":
+				var sentence strings.Builder
+				sentence.WriteRune('\'')
+				sentence.WriteString(gofakeit.Sentence(10))
+				sentence.WriteRune('\'')
+				value = sentence.String()
+			case "timestamp without time zone":
+				var timestamp strings.Builder
+				timestamp.WriteRune('\'')
+				timestamp.WriteString(gofakeit.Date().Format("%d-%02d-%02d"))
+				timestamp.WriteRune('\'')
+				value = timestamp.String()
 			default:
 				return errors.New("UDT Currently unsupported: " + col.UdtName)
 			}
