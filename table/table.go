@@ -93,7 +93,11 @@ func (t *Table) CreateData(count int) error {
 				timestamp.WriteRune('\'')
 				value = timestamp.String()
 			case "json", "jsonb":
-				value = `'{ "a": "1", "b": "2" }'`
+				json, err := gofakeit.JSON(nil)
+				if err != nil {
+					return err
+				}
+				value = string(json)
 			case "bool":
 				boolVal := gofakeit.Bool()
 				if boolVal {
