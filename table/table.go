@@ -6,6 +6,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/brianvoe/gofakeit/v7"
 )
@@ -69,38 +70,9 @@ func (t *Table) CreateData(count int) error {
 			}
 
 			var value string
-
-			switch col.DataType {
-			case "boolean":
-				boolVal := gofakeit.Bool()
-				if boolVal {
-					value = "true"
-				} else {
-					value = "false"
-				}
-			case "integer":
-				intVal := gofakeit.Int()
-				value = strconv.Itoa(intVal)
-			case "json", "jsonb":
-				json, err := gofakeit.JSON(nil)
-				if err != nil {
-					return err
-				}
-				value = string(json)
-			case "text":
-				var sentence strings.Builder
-				sentence.WriteRune('\'')
-				sentence.WriteString(gofakeit.Sentence(10))
-				sentence.WriteRune('\'')
-				value = sentence.String()
-			case "timestamp without time zone":
-				var timestamp strings.Builder
-				timestamp.WriteRune('\'')
-				timestamp.WriteString(gofakeit.Date().Format("%d-%02d-%02d"))
-				timestamp.WriteRune('\'')
-				value = timestamp.String()
-			default:
-				return errors.New("UDT Currently unsupported: " + col.UdtName)
+			value, err := fakeData(col.DataType, col.UdtName)
+			if err != nil {
+				return err
 			}
 
 			row = append(row, value)
@@ -110,6 +82,84 @@ func (t *Table) CreateData(count int) error {
 	}
 
 	return nil
+}
+
+func fakeData(datatype, udt string) (string, error) {
+	switch datatype {
+	case "ARRAY":
+		underlyingDt, err := udtToPsqlDatatype(udt)
+		if err != nil {
+			return "", err
+		}
+
+		value, err := fakeData(underlyingDt, "")
+		if err != nil {
+			return "", err
+		}
+
+		var array strings.Builder
+		array.WriteString("ARRAY[")
+		array.WriteString(value)
+		array.WriteString("]")
+		return array.String(), nil
+	case "boolean":
+		boolVal := gofakeit.Bool()
+		if boolVal {
+			return "true", nil
+		} else {
+			return "false", nil
+		}
+	case "integer":
+		intVal := gofakeit.Int()
+		return strconv.Itoa(intVal), nil
+	case "json", "jsonb":
+		var jo gofakeit.JSONOptions
+
+		// Use gofakeit to create random JSON fields
+		err := gofakeit.Struct(&jo)
+		if err != nil {
+			return "", err
+		}
+
+		// Overwrite the fields to force this to be an object
+		jo.Indent = false
+		jo.RowCount = 1
+		jo.Type = "object"
+
+		jsonRaw, err := gofakeit.JSON(&jo)
+		if err != nil {
+			return "", err
+		}
+
+		var json strings.Builder
+		json.WriteRune('\'')
+		json.WriteString(strings.ReplaceAll(string(jsonRaw), "'", "''")) // escape single quotes
+		json.WriteRune('\'')
+		return json.String(), err
+	case "text":
+		var sentence strings.Builder
+		sentence.WriteRune('\'')
+		sentence.WriteString(strings.ReplaceAll(gofakeit.Sentence(1), "'", "''")) // escape single quotes
+		sentence.WriteRune('\'')
+		return sentence.String(), nil
+	case "timestamp", "timestamp with time zone", "timestamp without time zone":
+		var timestamp strings.Builder
+		timestamp.WriteRune('\'')
+		timestamp.WriteString(gofakeit.Date().Format(time.DateOnly))
+		timestamp.WriteRune('\'')
+		return timestamp.String(), nil
+	default:
+		return "", errors.New("Datatype currently unsupported: " + datatype + "(" + udt + ")")
+	}
+}
+
+func udtToPsqlDatatype(udt string) (string, error) {
+	switch udt {
+	case "_text", "text":
+		return "text", nil
+	default:
+		return "", errors.New("Unknown UDT to datatype mapping: " + udt)
+	}
 }
 
 func (t *Table) ToPsqlStatement() string {
