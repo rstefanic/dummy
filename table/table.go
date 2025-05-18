@@ -3,6 +3,7 @@ package table
 import (
 	"database/sql"
 	"errors"
+	"math"
 	"slices"
 	"strconv"
 	"strings"
@@ -102,6 +103,13 @@ func fakeData(datatype, udt string) (string, error) {
 		array.WriteString(value)
 		array.WriteString("]")
 		return array.String(), nil
+	case "bigint":
+		bigIntVal := gofakeit.Int64()
+		return strconv.FormatInt(bigIntVal, 10), nil
+	case "bigserial":
+		// NOTE: IntRange may cut off the upper bounds of a int64
+		bigSerialVal := int64(gofakeit.IntRange(1, math.MaxInt64))
+		return strconv.FormatInt(bigSerialVal, 10), nil
 	case "boolean":
 		boolVal := gofakeit.Bool()
 		if boolVal {
@@ -110,8 +118,8 @@ func fakeData(datatype, udt string) (string, error) {
 			return "false", nil
 		}
 	case "integer":
-		intVal := gofakeit.Int()
-		return strconv.Itoa(intVal), nil
+		intVal := gofakeit.Int16()
+		return strconv.FormatInt(int64(intVal), 10), nil
 	case "json", "jsonb":
 		var jo gofakeit.JSONOptions
 
@@ -136,6 +144,12 @@ func fakeData(datatype, udt string) (string, error) {
 		json.WriteString(strings.ReplaceAll(string(jsonRaw), "'", "''")) // escape single quotes
 		json.WriteRune('\'')
 		return json.String(), err
+	case "serial":
+		serialVal := gofakeit.IntRange(1, math.MaxInt32)
+		return strconv.FormatInt(int64(serialVal), 10), nil
+	case "smallserial":
+		smallSerialVal := gofakeit.IntRange(1, math.MaxInt16)
+		return strconv.FormatInt(int64(smallSerialVal), 10), nil
 	case "text":
 		var sentence strings.Builder
 		sentence.WriteRune('\'')
