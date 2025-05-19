@@ -205,6 +205,12 @@ func fakeData(datatype, udt string) (string, error) {
 		timestamp.WriteString(gofakeit.Date().Format(time.DateOnly))
 		timestamp.WriteRune('\'')
 		return timestamp.String(), nil
+	case "uuid":
+		var uuid strings.Builder
+		uuid.WriteRune('\'')
+		uuid.WriteString(gofakeit.UUID())
+		uuid.WriteRune('\'')
+		return uuid.String(), nil
 	default:
 		return "", errors.New("Datatype currently unsupported: " + datatype + "(" + udt + ")")
 	}
