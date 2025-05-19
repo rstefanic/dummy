@@ -1,10 +1,8 @@
-package table
+package postgresql
 
 import (
 	"strings"
 	"testing"
-
-	"github.com/brianvoe/gofakeit"
 )
 
 func createFakeColumn(name string, ordinalPosition int, isNullable bool, udtName string, isIdentity bool) *Column {
@@ -33,7 +31,7 @@ func createFakeColumn(name string, ordinalPosition int, isNullable bool, udtName
 }
 
 func createFakeTable(tableName string) *Table {
-	table := New(tableName)
+	table := NewTable(tableName)
 
 	idCol := createFakeColumn("id", 1, false, "int4", true)
 	table.Columns = append(table.Columns, *idCol)

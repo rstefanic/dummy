@@ -9,7 +9,6 @@ import (
 	_ "github.com/lib/pq"
 
 	"dummy/postgresql"
-	t "dummy/table"
 )
 
 func main() {
@@ -37,7 +36,7 @@ func main() {
 	if tableName == "" {
 		panic("argument \"table\" is required")
 	}
-	var table = t.New(tableName)
+	var table = postgresql.NewTable(tableName)
 
 	gofakeit.Seed(seed)
 

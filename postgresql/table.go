@@ -1,4 +1,4 @@
-package table
+package postgresql
 
 import (
 	"database/sql"
@@ -19,7 +19,7 @@ type Table struct {
 	InsertRows [][]string
 }
 
-func New(name string) *Table {
+func NewTable(name string) *Table {
 	return &Table{
 		Name: name,
 	}

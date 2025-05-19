@@ -3,8 +3,6 @@ package postgresql
 import (
 	"database/sql"
 	"fmt"
-
-	t "dummy/table"
 )
 
 type PostgresqlDB struct {
@@ -27,8 +25,8 @@ func (p *PostgresqlDB) Close() {
 	p.db.Close()
 }
 
-func (p *PostgresqlDB) GetTableColumns(table string) ([]t.Column, error) {
-	var columns []t.Column
+func (p *PostgresqlDB) GetTableColumns(table string) ([]Column, error) {
+	var columns []Column
 
 	rows, err := p.db.Query(`
 		SELECT column_name, ordinal_position, column_default, is_nullable, data_type,
@@ -43,13 +41,13 @@ func (p *PostgresqlDB) GetTableColumns(table string) ([]t.Column, error) {
 	)
 
 	if err != nil {
-		return make([]t.Column, 0), err
+		return make([]Column, 0), err
 	}
 
 	defer rows.Close()
 
 	for rows.Next() {
-		var c t.Column
+		var c Column
 		err := rows.Scan(&c.Name, &c.OrdinalPosition, &c.ColumnDefault, &c.IsNullable,
 			&c.DataType, &c.CharacterMaximumLength, &c.CharacterOctetLength,
 			&c.NumericPrecision, &c.NumericPrecisionRadix, &c.NumericScale,
@@ -59,7 +57,7 @@ func (p *PostgresqlDB) GetTableColumns(table string) ([]t.Column, error) {
 			&c.IsUpdateable)
 
 		if err != nil {
-			return make([]t.Column, 0), err
+			return make([]Column, 0), err
 		}
 
 		columns = append(columns, c)
