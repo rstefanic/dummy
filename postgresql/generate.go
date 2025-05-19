@@ -37,7 +37,11 @@ func fakeData(datatype, udt string) (string, error) {
 		for i := range val {
 			val[i] = charset[gofakeit.IntRange(0, len(charset)-1)]
 		}
-		return string(val), nil
+		var bitString strings.Builder
+		bitString.WriteString("B'")
+		bitString.WriteString(string(val))
+		bitString.WriteString("'")
+		return bitString.String(), nil
 	case "bigserial":
 		// NOTE: IntRange may cut off the upper bounds of a int64
 		bigSerialVal := int64(gofakeit.IntRange(1, math.MaxInt64))
