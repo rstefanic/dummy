@@ -106,6 +106,13 @@ func fakeData(datatype, udt string) (string, error) {
 	case "bigint":
 		bigIntVal := gofakeit.Int64()
 		return strconv.FormatInt(bigIntVal, 10), nil
+	case "bit":
+		charset := "01"
+		val := make([]byte, 8)
+		for i := range val {
+			val[i] = charset[gofakeit.IntRange(0, len(charset)-1)]
+		}
+		return string(val), nil
 	case "bigserial":
 		// NOTE: IntRange may cut off the upper bounds of a int64
 		bigSerialVal := int64(gofakeit.IntRange(1, math.MaxInt64))
