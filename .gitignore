@@ -1,4 +1,5 @@
 result
+dummy.yml
 .direnv/
 .envrc
 .nixos-test-history
