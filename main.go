@@ -4,8 +4,10 @@ import (
 	"flag"
 	"fmt"
 	"math/rand/v2"
+	"os"
 
 	"github.com/brianvoe/gofakeit/v7"
+	"github.com/goccy/go-yaml"
 	_ "github.com/lib/pq"
 
 	"dummy/postgresql"
@@ -13,34 +15,40 @@ import (
 
 func main() {
 	var (
-		host              string
-		name              string
-		user              string
-		password          string
-		tableName         string
-		count             int
-		seed              int
-		hideInputComments bool
+		path      string
+		tableName string
+		count     int
+		seed      int
 	)
 
-	flag.StringVar(&host, "host", "127.0.0.1", "The host to connect to.")
-	flag.StringVar(&name, "name", "postgres", "Name of the database to connect to.")
-	flag.StringVar(&user, "user", "root", "The user/role in the DB to connect with.")
-	flag.StringVar(&password, "password", "", "The password of the user/role to connect with.")
+	flag.StringVar(&path, "path", "dummy.yml", "Path to the configuration yaml file.")
 	flag.StringVar(&tableName, "table", "", "The table that you want to create data dummy for.")
 	flag.IntVar(&count, "count", 10, "The number of rows of dummy data to generate.")
 	flag.IntVar(&seed, "seed", rand.Int(), "Set the seeder used to generate the output.")
-	flag.BoolVar(&hideInputComments, "hide-input-comments", false, "Write the input information as a comment in the output.")
 	flag.Parse()
+
+	configFile, err := os.ReadFile(path)
+	if err != nil {
+		panic("could not find file specified")
+	}
+
+	var config Config
+	yaml.Unmarshal(configFile, &config)
+
+	// If there was no seed set in the config file, randomize it
+	if config.Seed == 0 {
+		config.Seed = seed
+	}
 
 	if tableName == "" {
 		panic("argument \"table\" is required")
 	}
+
 	var table = postgresql.NewTable(tableName)
 
-	gofakeit.Seed(seed)
+	gofakeit.Seed(config.Seed)
 
-	psqlDb, err := postgresql.New(user, password, host, name)
+	psqlDb, err := postgresql.New(config.Server.User, config.Server.Password, config.Server.Host, config.Server.Name)
 	if err != nil {
 		panic("(postgresql.New): " + err.Error())
 	}
@@ -62,15 +70,26 @@ func main() {
 		panic(err)
 	}
 
-	if !hideInputComments {
-		fmt.Println("-- host:", host)
-		fmt.Println("-- name:", name)
-		fmt.Println("-- user:", user)
-		fmt.Println("-- pass:", password)
+	if !config.HideInputComment {
+		fmt.Println("-- host:", config.Server.Host)
+		fmt.Println("-- name:", config.Server.Name)
+		fmt.Println("-- user:", config.Server.User)
+		fmt.Println("-- pass:", config.Server.Password)
 		fmt.Println("-- table:", tableName)
-		fmt.Println("-- seed:", seed)
+		fmt.Println("-- seed:", config.Seed)
 		fmt.Println("")
 	}
 
 	fmt.Println(table.ToPsqlStatement())
+}
+
+type Config struct {
+	Server struct {
+		Host     string `yaml:"host"`
+		Name     string `yaml:"name"`
+		User     string `yaml:"user"`
+		Password string `yaml:"password"`
+	}
+	Seed             int  `yaml:"seed"`
+	HideInputComment bool `yaml:"hideInputComments"`
 }

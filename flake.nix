@@ -60,7 +60,7 @@
               postgres.wait_for_open_port(5432)
 
               expected = """${expected}"""
-              actual = client.succeed('dummy --host postgres --name postgres --user postgres --table todos --count 3 --seed 1')
+              actual = client.succeed('dummy --table todos --count 3 --seed 1 --path /etc/dummy.yml')
 
               assert expected == actual, "actual:\n" + actual + "\nexpected:\n" + expected
             '';
