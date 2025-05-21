@@ -119,8 +119,19 @@ func TestText(t *testing.T) {
 	compare(t, actual, expected)
 }
 
+func TestTimestampWith(t *testing.T) {
+	expected := "'2002-04-30T04:07:15Z'"
+	actual, err := fakeData("timestamp with time zone", "timestamptz")
+
+	if err != nil {
+		t.Errorf(`Error calling "fakeData(timestamp with time zone, timestamptz)"`)
+	}
+
+	compare(t, actual, expected)
+}
+
 func TestTimestampWithoutTimeZone(t *testing.T) {
-	expected := "'2002-04-30'"
+	expected := "'1941-05-29'"
 	actual, err := fakeData("timestamp without time zone", "timestamp")
 
 	if err != nil {
@@ -131,7 +142,7 @@ func TestTimestampWithoutTimeZone(t *testing.T) {
 }
 
 func TestUuid(t *testing.T) {
-	expected := "'e23e206b-2791-40a2-9df9-8ee09af3101c'"
+	expected := "'a25df98e-e09a-4310-9cbc-b15bffe95e78'"
 	actual, err := fakeData("uuid", "uuid")
 
 	if err != nil {

@@ -124,7 +124,13 @@ func fakeData(datatype, udt string) (string, error) {
 		sentence.WriteString(strings.ReplaceAll(gofakeit.Sentence(1), "'", "''")) // escape single quotes
 		sentence.WriteRune('\'')
 		return sentence.String(), nil
-	case "timestamp with time zone", "timestamp without time zone":
+	case "timestamp with time zone":
+		var timestamp strings.Builder
+		timestamp.WriteRune('\'')
+		timestamp.WriteString(gofakeit.Date().Format(time.RFC3339))
+		timestamp.WriteRune('\'')
+		return timestamp.String(), nil
+	case "timestamp without time zone":
 		var timestamp strings.Builder
 		timestamp.WriteRune('\'')
 		timestamp.WriteString(gofakeit.Date().Format(time.DateOnly))
