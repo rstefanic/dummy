@@ -12,5 +12,8 @@
       user: "postgres"
     options:
       seed: 1
+    tables:
+      - name: todos
+        count: 3
   '';
 }

@@ -23,7 +23,7 @@ func main() {
 
 	flag.StringVar(&path, "path", "dummy.yml", "Path to the configuration yaml file.")
 	flag.StringVar(&tableName, "table", "", "The table that you want to create data dummy for.")
-	flag.IntVar(&count, "count", 10, "The number of rows of dummy data to generate.")
+	flag.IntVar(&count, "count", 0, "The number of rows of dummy data to generate.")
 	flag.IntVar(&seed, "seed", rand.Int(), "Set the seeder used to generate the output.")
 	flag.Parse()
 
@@ -46,6 +46,15 @@ func main() {
 
 	if tableName == "" {
 		tableName = config.Tables[0].Name
+	}
+
+	// Try to use the one from the config if we're missing the `count` program argument
+	if count == 0 {
+		count = config.Tables[0].Count
+	}
+
+	if count == 0 {
+		panic("\"count\" is 0 -- no data to generate")
 	}
 
 	var table = postgresql.NewTable(tableName)
@@ -99,6 +108,7 @@ type Config struct {
 		HideInputComment bool `yaml:"hideInputComments"`
 	}
 	Tables []struct {
-		Name string `yaml:"name"`
+		Name  string `yaml:"name"`
+		Count int    `yaml:"count"`
 	}
 }
