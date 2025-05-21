@@ -110,10 +110,10 @@ func TestSerial(t *testing.T) {
 
 func TestSmallSerial(t *testing.T) {
 	expected := "19030"
-	actual, err := fakeData("smallserial", "smallserial")
+	actual, err := fakeData("smallint", "int2")
 
 	if err != nil {
-		t.Errorf(`Error calling "fakeData(smallserial, smallserial)"`)
+		t.Errorf(`Error calling "fakeData(smallint, int2)"`)
 	}
 
 	compare(t, actual, expected)

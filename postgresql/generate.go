@@ -115,7 +115,7 @@ func fakeData(datatype, udt string) (string, error) {
 	case "serial":
 		serialVal := gofakeit.IntRange(1, math.MaxInt32)
 		return strconv.FormatInt(int64(serialVal), 10), nil
-	case "smallserial":
+	case "smallint":
 		smallSerialVal := gofakeit.IntRange(1, math.MaxInt16)
 		return strconv.FormatInt(int64(smallSerialVal), 10), nil
 	case "text":
