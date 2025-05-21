@@ -36,8 +36,8 @@ func main() {
 	yaml.Unmarshal(configFile, &config)
 
 	// If there was no seed set in the config file, randomize it
-	if config.Seed == 0 {
-		config.Seed = seed
+	if config.Options.Seed == 0 {
+		config.Options.Seed = seed
 	}
 
 	if tableName == "" {
@@ -46,7 +46,7 @@ func main() {
 
 	var table = postgresql.NewTable(tableName)
 
-	gofakeit.Seed(config.Seed)
+	gofakeit.Seed(config.Options.Seed)
 
 	psqlDb, err := postgresql.New(config.Server.User, config.Server.Password, config.Server.Host, config.Server.Name)
 	if err != nil {
@@ -70,13 +70,13 @@ func main() {
 		panic(err)
 	}
 
-	if !config.HideInputComment {
+	if !config.Options.HideInputComment {
 		fmt.Println("-- host:", config.Server.Host)
 		fmt.Println("-- name:", config.Server.Name)
 		fmt.Println("-- user:", config.Server.User)
 		fmt.Println("-- pass:", config.Server.Password)
 		fmt.Println("-- table:", tableName)
-		fmt.Println("-- seed:", config.Seed)
+		fmt.Println("-- seed:", config.Options.Seed)
 		fmt.Println("")
 	}
 
@@ -90,6 +90,8 @@ type Config struct {
 		User     string `yaml:"user"`
 		Password string `yaml:"password"`
 	}
-	Seed             int  `yaml:"seed"`
-	HideInputComment bool `yaml:"hideInputComments"`
+	Options struct {
+		Seed             int  `yaml:"seed"`
+		HideInputComment bool `yaml:"hideInputComments"`
+	}
 }

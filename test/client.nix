@@ -10,5 +10,7 @@
       host: "postgres"
       name: "postgres"
       user: "postgres"
+    options:
+      seed: 1
   '';
 }
