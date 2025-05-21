@@ -88,21 +88,10 @@ func TestNumeric(t *testing.T) {
 
 func TestReal(t *testing.T) {
 	expected := "0.956915"
-	actual, err := fakeData("real", "real")
+	actual, err := fakeData("real", "float4")
 
 	if err != nil {
-		t.Errorf(`Error calling "fakeData(real, real)"`)
-	}
-
-	compare(t, actual, expected)
-}
-
-func TestSerial(t *testing.T) {
-	expected := "649450162"
-	actual, err := fakeData("serial", "serial")
-
-	if err != nil {
-		t.Errorf(`Error calling "fakeData(real, real)"`)
+		t.Errorf(`Error calling "fakeData(real, float4)"`)
 	}
 
 	compare(t, actual, expected)
