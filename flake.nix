@@ -67,7 +67,5 @@
           };
         }
       );
-
-      defaultPackage = forAllSystems (system: self.packages.${system}.dummy);
     };
 }
