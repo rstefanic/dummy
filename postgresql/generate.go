@@ -49,7 +49,7 @@ func fakeData(datatype, udt string) (string, error) {
 		} else {
 			return "false", nil
 		}
-	case "decimal", "numeric":
+	case "numeric", "decimal":
 		charset := "0123456789"
 		maxPreDeicmalLen := 131072
 		maxPostDecimalLen := 16383
