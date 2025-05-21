@@ -40,8 +40,12 @@ func main() {
 		config.Options.Seed = seed
 	}
 
-	if tableName == "" {
+	if tableName == "" && len(config.Tables) == 0 {
 		panic("argument \"table\" is required")
+	}
+
+	if tableName == "" {
+		tableName = config.Tables[0].Name
 	}
 
 	var table = postgresql.NewTable(tableName)
@@ -93,5 +97,8 @@ type Config struct {
 	Options struct {
 		Seed             int  `yaml:"seed"`
 		HideInputComment bool `yaml:"hideInputComments"`
+	}
+	Tables []struct {
+		Name string `yaml:"name"`
 	}
 }
