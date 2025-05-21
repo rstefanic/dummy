@@ -42,17 +42,6 @@ func TestBitString(t *testing.T) {
 	compare(t, actual, expected)
 }
 
-func TestBigSerial(t *testing.T) {
-	expected := "2735585774591500174"
-	actual, err := fakeData("bigserial", "bigserial")
-
-	if err != nil {
-		t.Errorf(`Error calling "fakeData(bigserial, bigserial)"`)
-	}
-
-	compare(t, actual, expected)
-}
-
 func TestBoolean(t *testing.T) {
 	expected := "true"
 	actual, err := fakeData("boolean", "bool")

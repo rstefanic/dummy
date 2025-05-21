@@ -42,10 +42,6 @@ func fakeData(datatype, udt string) (string, error) {
 		bitString.WriteString(string(val))
 		bitString.WriteString("'")
 		return bitString.String(), nil
-	case "bigserial":
-		// NOTE: IntRange may cut off the upper bounds of a int64
-		bigSerialVal := int64(gofakeit.IntRange(1, math.MaxInt64))
-		return strconv.FormatInt(bigSerialVal, 10), nil
 	case "boolean":
 		boolVal := gofakeit.Bool()
 		if boolVal {
