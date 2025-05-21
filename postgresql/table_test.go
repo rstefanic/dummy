@@ -39,7 +39,7 @@ func createFakeTable(tableName string) *Table {
 	nameCol := createFakeColumn("name", 1, false, "text", false)
 	table.Columns = append(table.Columns, *nameCol)
 
-	createdAtCol := createFakeColumn("created_at", 1, false, "timestamp", false)
+	createdAtCol := createFakeColumn("created_at", 1, false, "timestamp without time zone", false)
 	table.Columns = append(table.Columns, *createdAtCol)
 
 	return table

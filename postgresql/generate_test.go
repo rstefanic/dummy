@@ -119,12 +119,12 @@ func TestText(t *testing.T) {
 	compare(t, actual, expected)
 }
 
-func TestTimestamp(t *testing.T) {
+func TestTimestampWithoutTimeZone(t *testing.T) {
 	expected := "'1930-05-18'"
-	actual, err := fakeData("timestamp", "timestamp")
+	actual, err := fakeData("timestamp without time zone", "timestamp")
 
 	if err != nil {
-		t.Errorf(`Error calling "fakeData(timestamp, timestamp)"`)
+		t.Errorf(`Error calling "fakeData(timestamp without time zone, timestamp)"`)
 	}
 
 	compare(t, actual, expected)
