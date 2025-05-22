@@ -47,7 +47,7 @@ type Column struct {
 	IsUpdateable           string
 }
 
-func (t *Table) FillMetadata() error {
+func (t *Table) Validate() error {
 	if len(t.Columns) == 0 {
 		return errors.New("Columns on table " + t.Name + " is empty")
 	}

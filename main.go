@@ -65,7 +65,7 @@ func main() {
 		}
 		t.Columns = columns
 
-		err = t.FillMetadata()
+		err = t.Validate()
 		if err != nil {
 			panic(err)
 		}
