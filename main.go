@@ -99,8 +99,5 @@ type Config struct {
 		Seed             int  `yaml:"seed"`
 		HideInputComment bool `yaml:"hideInputComments"`
 	}
-	Tables []struct {
-		Name  string `yaml:"name"`
-		Count int    `yaml:"count"`
-	}
+	Tables []commands.TableCommands `yaml:"tables"`
 }
