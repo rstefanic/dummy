@@ -43,7 +43,6 @@ func main() {
 		fmt.Println("-- host:", config.Server.Host)
 		fmt.Println("-- name:", config.Server.Name)
 		fmt.Println("-- user:", config.Server.User)
-		fmt.Println("-- pass:", config.Server.Password)
 		fmt.Println("-- seed:", config.Options.Seed)
 		fmt.Println("")
 	}
