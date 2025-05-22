@@ -22,7 +22,7 @@ func main() {
 
 	flag.StringVar(&path, "path", "dummy.yml", "Path to the configuration yaml file.")
 	flag.IntVar(&seed, "seed", rand.Int(), "Set the seeder used to generate the output.")
-	flag.IntVar(&defaultCount, "count", 10, "Change the default record generation count for each table. Default is 10.")
+	flag.IntVar(&defaultCount, "count", 10, "Change the default record generation count for each table.")
 	flag.Parse()
 
 	configFile, err := os.ReadFile(path)
