@@ -15,12 +15,14 @@ import (
 
 func main() {
 	var (
-		path string
-		seed int
+		path         string
+		seed         int
+		defaultCount int
 	)
 
 	flag.StringVar(&path, "path", "dummy.yml", "Path to the configuration yaml file.")
 	flag.IntVar(&seed, "seed", rand.Int(), "Set the seeder used to generate the output.")
+	flag.IntVar(&defaultCount, "count", 10, "Change the default record generation count for each table. Default is 10.")
 	flag.Parse()
 
 	configFile, err := os.ReadFile(path)
@@ -69,17 +71,18 @@ func main() {
 			panic(err)
 		}
 
-		// Set the defualt count to 10 if it isn't set
-		var count int
-		if table.Count == 0 {
-			count = 10
-		} else {
-			count = table.Count
-		}
+		{
+			var count int
+			if table.Count != 0 {
+				count = table.Count
+			} else {
+				count = defaultCount
+			}
 
-		err = t.CreateData(count)
-		if err != nil {
-			panic(err)
+			err = t.CreateData(count)
+			if err != nil {
+				panic(err)
+			}
 		}
 
 		fmt.Println(t.ToPsqlStatement())
