@@ -2,6 +2,7 @@ package postgresql
 
 import (
 	"database/sql"
+	"dummy/commands"
 	"errors"
 	"slices"
 	"strings"
@@ -47,9 +48,31 @@ type Column struct {
 	IsUpdateable           string
 }
 
-func (t *Table) Validate() error {
+func (t *Table) Validate(cmds commands.TableCommands) error {
 	if len(t.Columns) == 0 {
 		return errors.New("Columns on table " + t.Name + " is empty")
+	}
+
+	// Ensure that the column commands issued by the user actually exist on the table
+	var col *Column = nil
+	for key, value := range cmds.Columns {
+		for _, actualTableCol := range t.Columns {
+			if key == actualTableCol.Name {
+				col = &actualTableCol
+				break
+			}
+		}
+
+		if col == nil {
+			return errors.New("Column '" + key + "' does not exist on table " + t.Name)
+		}
+
+		// If it's a text column, ensure that the value requested is something supported
+		if col.UdtName == "text" {
+			if !(value == "FirstName" || value == "LastName" || value == "") {
+				return errors.New("Column '" + key + "' is not a text column and cannot generate a \"" + value + "\" for it.")
+			}
+		}
 	}
 
 	return nil

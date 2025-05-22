@@ -10,6 +10,7 @@ import (
 	"github.com/goccy/go-yaml"
 	_ "github.com/lib/pq"
 
+	"dummy/commands"
 	"dummy/postgresql"
 )
 
@@ -65,7 +66,7 @@ func main() {
 		}
 		t.Columns = columns
 
-		err = t.Validate()
+		err = t.Validate(table)
 		if err != nil {
 			panic(err)
 		}
