@@ -1,6 +1,7 @@
 package postgresql
 
 import (
+	"dummy/commands"
 	"strings"
 	"testing"
 )
@@ -59,8 +60,9 @@ func TestCreateData(t *testing.T) {
 }
 
 func TestToPsqlStatement(t *testing.T) {
+	var tblCmds commands.TableCommands
 	table := createFakeTable("fake_table")
-	table.FillMetadata()
+	table.Validate(tblCmds)
 
 	table.InsertRows = append(table.InsertRows, []string{"DEFAULT", "Bill Bob", "2025-04-12 10:00:00 UTC"})
 	table.InsertRows = append(table.InsertRows, []string{"DEFAULT", "Jim George", "2025-04-12 10:00:00 UTC"})
