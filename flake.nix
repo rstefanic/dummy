@@ -37,8 +37,6 @@
               "-- host: postgres"
               "-- name: postgres"
               "-- user: postgres"
-              "-- pass: "
-              "-- table: todos"
               "-- seed: 1"
               ""
               "INSERT INTO todos (id,task,complete,created_at) VALUES (DEFAULT,'Change.',false,'2015-04-29'),(DEFAULT,'Without.',true,'1954-01-27'),(DEFAULT,'Tomorrow.',true,'1917-05-22');"
