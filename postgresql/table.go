@@ -10,7 +10,7 @@ import (
 
 type Table struct {
 	Name       string
-	metadata   metadata
+	Metadata   Metadata
 	Columns    []Column
 	InsertRows [][]string
 }
@@ -18,10 +18,14 @@ type Table struct {
 func NewTable(name string) *Table {
 	return &Table{
 		Name: name,
+		Metadata: Metadata{
+			CustomData: make(map[string]string),
+		},
 	}
 }
 
-type metadata struct {
+type Metadata struct {
+	CustomData      map[string]string
 	identityColumns []int
 }
 
@@ -72,6 +76,10 @@ func (t *Table) Validate(cmds commands.TableCommands) error {
 			if !(value == "FirstName" || value == "LastName" || value == "") {
 				return errors.New("Column '" + key + "' is not a text column and cannot generate a \"" + value + "\" for it.")
 			}
+
+			if value != "" {
+				t.Metadata.CustomData[key] = value
+			}
 		}
 	}
 
@@ -89,7 +97,7 @@ func (t *Table) CreateData(count int) error {
 			}
 
 			var value string
-			value, err := fakeData(col.DataType, col.UdtName)
+			value, err := fakeData(col.DataType, col.UdtName, col.Name, &t.Metadata.CustomData)
 			if err != nil {
 				return err
 			}
@@ -116,7 +124,7 @@ func (t *Table) ToPsqlStatement() string {
 		for i, col := range t.Columns {
 			// Skip identity columns since we've already
 			// generated the data without this column
-			if slices.Contains(t.metadata.identityColumns, i) {
+			if slices.Contains(t.Metadata.identityColumns, i) {
 				continue
 			}
 

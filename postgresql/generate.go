@@ -10,7 +10,7 @@ import (
 	"github.com/brianvoe/gofakeit/v7"
 )
 
-func fakeData(datatype, udt string) (string, error) {
+func fakeData(datatype, udt, columnName string, customData *map[string]string) (string, error) {
 	switch datatype {
 	case "ARRAY":
 		underlyingDt, err := udtToPsqlDatatype(udt)
@@ -18,7 +18,7 @@ func fakeData(datatype, udt string) (string, error) {
 			return "", err
 		}
 
-		value, err := fakeData(underlyingDt, "")
+		value, err := fakeData(underlyingDt, "", columnName, customData)
 		if err != nil {
 			return "", err
 		}
@@ -121,7 +121,28 @@ func fakeData(datatype, udt string) (string, error) {
 	case "text":
 		var sentence strings.Builder
 		sentence.WriteRune('\'')
-		sentence.WriteString(strings.ReplaceAll(gofakeit.Sentence(1), "'", "''")) // escape single quotes
+
+		// Check if the user has requested custom data
+		dataWritten := false
+		if customData != nil {
+			customData, ok := (*customData)[columnName]
+			if ok {
+				switch customData {
+				case "FirstName":
+					sentence.WriteString(strings.ReplaceAll(gofakeit.FirstName(), "'", "''")) // escape single quotes
+				case "LastName":
+					sentence.WriteString(strings.ReplaceAll(gofakeit.LastName(), "'", "''")) // escape single quotes
+				default:
+					panic("unrecognized custom 'text' datatype: \"" + customData + "\"")
+				}
+
+				dataWritten = true
+			}
+		}
+
+		if !dataWritten {
+			sentence.WriteString(strings.ReplaceAll(gofakeit.Sentence(1), "'", "''")) // escape single quotes
+		}
 		sentence.WriteRune('\'')
 		return sentence.String(), nil
 	case "timestamp with time zone":
