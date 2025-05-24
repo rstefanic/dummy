@@ -125,6 +125,30 @@ func (t *Table) GuessCustomTextFieldGenerators() {
 			continue
 		}
 
+		// Try to see if the table name provides a clue
+		tableName := t.Name
+		switch true {
+		case regexp.MustCompile(`(?i)users`).MatchString(tableName):
+			switch true {
+			case regexp.MustCompile(`(?i)^id$`).MatchString(colName):
+				customData[colName] = "UUID"
+			case regexp.MustCompile(`(?i)^name$`).MatchString(colName):
+				customData[colName] = "Name"
+			default:
+				// No guesses to offer
+				continue
+			}
+		case regexp.MustCompile(`(?i)(company|firm|business|corporation|establishment|organization|institution)`).MatchString(tableName):
+			switch true {
+			case regexp.MustCompile(`(?i)^id$`).MatchString(colName):
+				customData[colName] = "UUID"
+			case regexp.MustCompile(`(?i)^name$`).MatchString(colName):
+				customData[colName] = "Company"
+			default:
+				// No guesses to offer
+				continue
+			}
+		}
 	}
 }
 
