@@ -98,19 +98,21 @@ func (t *Table) GuessCustomTextFieldGenerators() {
 			continue
 		}
 
-		name := col.Name
+		// Take a look at the column name to see if we can't guess the correct data
+		colName := col.Name
 		switch true {
-		case regexp.MustCompile(`^first[_-]*name$`).MatchString(name):
+		case regexp.MustCompile(`(?i)^first[_-]*name$`).MatchString(colName):
 			fallthrough
-		case regexp.MustCompile(`^given[_-]*name$`).MatchString(name):
-			customData[name] = "FirstName"
-		case regexp.MustCompile(`^last[_-]*name$`).MatchString(name):
+		case regexp.MustCompile(`(?i)^given[_-]*name$`).MatchString(colName):
+			customData[colName] = "FirstName"
+			continue
+		case regexp.MustCompile(`(?i)^last[_-]*name$`).MatchString(colName):
 			fallthrough
-		case regexp.MustCompile(`^family[_-]*name$`).MatchString(name):
-			customData[name] = "LastName"
-		case regexp.MustCompile(`^(company|firm|business|corporation|establishment|organization|institution)[-_]*(name)?$`).MatchString(name):
-			customData[name] = "Company"
-		default:
+		case regexp.MustCompile(`(?i)^family[_-]*name$`).MatchString(colName):
+			customData[colName] = "LastName"
+			continue
+		case regexp.MustCompile(`(?i)^(company|firm|business|corporation|establishment|organization|institution)[-_]*(name)?$`).MatchString(colName):
+			customData[colName] = "Company"
 			continue
 		}
 	}
