@@ -53,7 +53,17 @@ type Column struct {
 	IsUpdateable           string
 }
 
-func (t *Table) Validate(cmds commands.TableCommands) error {
+type ForeignKeyRelation struct {
+	TableSchema        string
+	ConstraintName     string
+	TableName          string
+	ColumnName         string
+	ForeignTableSchema string
+	ForeignTableName   string
+	ForeignColumnName  string
+}
+
+func (t *Table) Validate(cmds commands.TableCommands, fks []ForeignKeyRelation) error {
 	if len(t.Columns) == 0 {
 		return errors.New("Columns on table " + t.Name + " is empty")
 	}
@@ -79,6 +89,18 @@ func (t *Table) Validate(cmds commands.TableCommands) error {
 			}
 
 			t.Metadata.CustomData[key] = strings.ToLower(value)
+		}
+	}
+
+	// TODO: Rollup the Column Commands validation above into this loop
+	for _, col := range t.Columns {
+		// Check if the column we're working with has a FK constraint
+		for _, fk := range fks {
+			if fk.ColumnName == col.Name {
+				if col.IsNullable == "NO" {
+					return errors.New("Column '" + col.Name + "' has a FK constraint named '" + fk.ConstraintName + "' that is not nullable")
+				}
+			}
 		}
 	}
 

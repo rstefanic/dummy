@@ -54,10 +54,16 @@ func main() {
 	}
 	defer psqlDb.Close()
 
+	fks, err := psqlDb.ForeignKeyRelations()
+	if err != nil {
+		panic("(postgresql.ForeignKeyRelations): " + err.Error())
+	}
+
 	for i, table := range config.Tables {
 		if i > 0 {
 			fmt.Print("\n\n")
 		}
+
 		var t = postgresql.NewTable(table.Name)
 
 		columns, err := psqlDb.GetTableColumns(t.Name)
@@ -66,7 +72,7 @@ func main() {
 		}
 		t.Columns = columns
 
-		err = t.Validate(table)
+		err = t.Validate(table, fks[table.Name])
 		if err != nil {
 			panic(err)
 		}
