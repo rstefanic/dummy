@@ -74,24 +74,15 @@ func (t *Table) Validate(cmds commands.TableCommands) error {
 
 		// If it's a text column, ensure that the value requested is something supported
 		if col.UdtName == "text" && value != "" {
-			if !isValidCustomTextFieldGenerator(value) {
+			if !regexp.MustCompile(`(?i)(company|firstname|lastname|name|uuid)`).MatchString(value) {
 				return errors.New("Column '" + key + "' is not a text column and cannot generate a \"" + value + "\" for it.")
 			}
 
-			t.Metadata.CustomData[key] = value
+			t.Metadata.CustomData[key] = strings.ToLower(value)
 		}
 	}
 
 	return nil
-}
-
-func isValidCustomTextFieldGenerator(fieldGenerator string) bool {
-	switch fieldGenerator {
-	case "Company", "FirstName", "LastName", "Name", "UUID":
-		return true
-	default:
-		return false
-	}
 }
 
 func (t *Table) GuessCustomTextFieldGenerators() {
@@ -113,15 +104,15 @@ func (t *Table) GuessCustomTextFieldGenerators() {
 		case regexp.MustCompile(`(?i)^first[_-]*name$`).MatchString(colName):
 			fallthrough
 		case regexp.MustCompile(`(?i)^given[_-]*name$`).MatchString(colName):
-			customData[colName] = "FirstName"
+			customData[colName] = "firstname"
 			continue
 		case regexp.MustCompile(`(?i)^last[_-]*name$`).MatchString(colName):
 			fallthrough
 		case regexp.MustCompile(`(?i)^family[_-]*name$`).MatchString(colName):
-			customData[colName] = "LastName"
+			customData[colName] = "lastname"
 			continue
 		case regexp.MustCompile(`(?i)^(company|firm|business|corporation|establishment|organization|institution)[-_]*(name)?$`).MatchString(colName):
-			customData[colName] = "Company"
+			customData[colName] = "company"
 			continue
 		}
 
@@ -131,9 +122,9 @@ func (t *Table) GuessCustomTextFieldGenerators() {
 		case regexp.MustCompile(`(?i)users`).MatchString(tableName):
 			switch true {
 			case regexp.MustCompile(`(?i)^id$`).MatchString(colName):
-				customData[colName] = "UUID"
+				customData[colName] = "uuid"
 			case regexp.MustCompile(`(?i)^name$`).MatchString(colName):
-				customData[colName] = "Name"
+				customData[colName] = "name"
 			default:
 				// No guesses to offer
 				continue
@@ -141,9 +132,9 @@ func (t *Table) GuessCustomTextFieldGenerators() {
 		case regexp.MustCompile(`(?i)(company|firm|business|corporation|establishment|organization|institution)`).MatchString(tableName):
 			switch true {
 			case regexp.MustCompile(`(?i)^id$`).MatchString(colName):
-				customData[colName] = "UUID"
+				customData[colName] = "uuid"
 			case regexp.MustCompile(`(?i)^name$`).MatchString(colName):
-				customData[colName] = "Company"
+				customData[colName] = "company"
 			default:
 				// No guesses to offer
 				continue
