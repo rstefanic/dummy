@@ -72,18 +72,25 @@ func (t *Table) Validate(cmds commands.TableCommands) error {
 		}
 
 		// If it's a text column, ensure that the value requested is something supported
-		if col.UdtName == "text" {
-			if !(value == "FirstName" || value == "LastName" || value == "") {
+		if col.UdtName == "text" && value != "" {
+			if !isValidCustomTextFieldGenerator(value) {
 				return errors.New("Column '" + key + "' is not a text column and cannot generate a \"" + value + "\" for it.")
 			}
 
-			if value != "" {
-				t.Metadata.CustomData[key] = value
-			}
+			t.Metadata.CustomData[key] = value
 		}
 	}
 
 	return nil
+}
+
+func isValidCustomTextFieldGenerator(fieldGenerator string) bool {
+	switch fieldGenerator {
+	case "FirstName", "LastName", "Company":
+		return true
+	default:
+		return false
+	}
 }
 
 func (t *Table) CreateData(count int) error {

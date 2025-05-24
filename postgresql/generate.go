@@ -132,6 +132,8 @@ func fakeData(datatype, udt, columnName string, customData *map[string]string) (
 					sentence.WriteString(strings.ReplaceAll(gofakeit.FirstName(), "'", "''")) // escape single quotes
 				case "LastName":
 					sentence.WriteString(strings.ReplaceAll(gofakeit.LastName(), "'", "''")) // escape single quotes
+				case "Company":
+					sentence.WriteString(strings.ReplaceAll(gofakeit.Company(), "'", "''")) // escape single quotes
 				default:
 					panic("unrecognized custom 'text' datatype: \"" + customData + "\"")
 				}
