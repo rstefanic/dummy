@@ -128,12 +128,16 @@ func fakeData(datatype, udt, columnName string, customData *map[string]string) (
 			customData, ok := (*customData)[columnName]
 			if ok {
 				switch customData {
+				case "Company":
+					sentence.WriteString(strings.ReplaceAll(gofakeit.Company(), "'", "''")) // escape single quotes
 				case "FirstName":
 					sentence.WriteString(strings.ReplaceAll(gofakeit.FirstName(), "'", "''")) // escape single quotes
 				case "LastName":
 					sentence.WriteString(strings.ReplaceAll(gofakeit.LastName(), "'", "''")) // escape single quotes
-				case "Company":
-					sentence.WriteString(strings.ReplaceAll(gofakeit.Company(), "'", "''")) // escape single quotes
+				case "Name":
+					sentence.WriteString(strings.ReplaceAll(gofakeit.Name(), "'", "''")) // escape single quotes
+				case "UUID":
+					sentence.WriteString(gofakeit.UUID())
 				default:
 					panic("unrecognized custom 'text' datatype: \"" + customData + "\"")
 				}

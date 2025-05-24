@@ -85,6 +85,15 @@ func (t *Table) Validate(cmds commands.TableCommands) error {
 	return nil
 }
 
+func isValidCustomTextFieldGenerator(fieldGenerator string) bool {
+	switch fieldGenerator {
+	case "Company", "FirstName", "LastName", "Name", "UUID":
+		return true
+	default:
+		return false
+	}
+}
+
 func (t *Table) GuessCustomTextFieldGenerators() {
 	customData := t.Metadata.CustomData
 
@@ -115,15 +124,7 @@ func (t *Table) GuessCustomTextFieldGenerators() {
 			customData[colName] = "Company"
 			continue
 		}
-	}
-}
 
-func isValidCustomTextFieldGenerator(fieldGenerator string) bool {
-	switch fieldGenerator {
-	case "FirstName", "LastName", "Company":
-		return true
-	default:
-		return false
 	}
 }
 
