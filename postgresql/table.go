@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"dummy/commands"
 	"errors"
+	"regexp"
 	"slices"
 	"strings"
 )
@@ -82,6 +83,37 @@ func (t *Table) Validate(cmds commands.TableCommands) error {
 	}
 
 	return nil
+}
+
+func (t *Table) GuessCustomTextFieldGenerators() {
+	customData := t.Metadata.CustomData
+
+	for _, col := range t.Columns {
+		_, exists := customData[col.Name]
+		if exists {
+			continue
+		}
+
+		if col.DataType != "text" {
+			continue
+		}
+
+		name := col.Name
+		switch true {
+		case regexp.MustCompile(`^first[_-]*name$`).MatchString(name):
+			fallthrough
+		case regexp.MustCompile(`^given[_-]*name$`).MatchString(name):
+			customData[name] = "FirstName"
+		case regexp.MustCompile(`^last[_-]*name$`).MatchString(name):
+			fallthrough
+		case regexp.MustCompile(`^family[_-]*name$`).MatchString(name):
+			customData[name] = "LastName"
+		case regexp.MustCompile(`^(company|firm|business|corporation|establishment|organization|institution)[-_]*(name)?$`).MatchString(name):
+			customData[name] = "Company"
+		default:
+			continue
+		}
+	}
 }
 
 func isValidCustomTextFieldGenerator(fieldGenerator string) bool {

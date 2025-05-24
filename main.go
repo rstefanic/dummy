@@ -71,6 +71,8 @@ func main() {
 			panic(err)
 		}
 
+		t.GuessCustomTextFieldGenerators()
+
 		{
 			var count int
 			if table.Count != 0 {
