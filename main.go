@@ -48,17 +48,17 @@ func main() {
 		fmt.Println("")
 	}
 
+	psqlDb, err := postgresql.New(config.Server.User, config.Server.Password, config.Server.Host, config.Server.Name)
+	if err != nil {
+		panic("(postgresql.New): " + err.Error())
+	}
+	defer psqlDb.Close()
+
 	for i, table := range config.Tables {
 		if i > 0 {
 			fmt.Print("\n\n")
 		}
 		var t = postgresql.NewTable(table.Name)
-
-		psqlDb, err := postgresql.New(config.Server.User, config.Server.Password, config.Server.Host, config.Server.Name)
-		if err != nil {
-			panic("(postgresql.New): " + err.Error())
-		}
-		defer psqlDb.Close()
 
 		columns, err := psqlDb.GetTableColumns(t.Name)
 		if err != nil {
