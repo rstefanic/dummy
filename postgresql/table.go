@@ -68,32 +68,21 @@ func (t *Table) Validate(cmds commands.TableCommands, fks []ForeignKeyRelation) 
 		return errors.New("Columns on table " + t.Name + " is empty")
 	}
 
-	// Ensure that the column commands issued by the user actually exist on the table
-	var col *Column = nil
-	for key, value := range cmds.Columns {
-		for _, actualTableCol := range t.Columns {
-			if key == actualTableCol.Name {
-				col = &actualTableCol
-				break
-			}
-		}
-
-		if col == nil {
-			return errors.New("Column '" + key + "' does not exist on table " + t.Name)
-		}
-
-		// If it's a text column, ensure that the value requested is something supported
-		if col.UdtName == "text" && value != "" {
-			if !regexp.MustCompile(`(?i)(company|firstname|lastname|name|uuid)`).MatchString(value) {
-				return errors.New("Column '" + key + "' is not a text column and cannot generate a \"" + value + "\" for it.")
-			}
-
-			t.Metadata.CustomData[key] = strings.ToLower(value)
-		}
-	}
-
-	// TODO: Rollup the Column Commands validation above into this loop
 	for _, col := range t.Columns {
+		name := col.Name
+		cmd, ok := cmds.Columns[name]
+		if ok {
+
+			// If it's a text column, ensure that the value requested is something supported
+			if col.UdtName == "text" && cmd != "" {
+				if !regexp.MustCompile(`(?i)(company|firstname|lastname|name|uuid)`).MatchString(cmd) {
+					return errors.New("Column '" + name + "' is not a text column and cannot generate a \"" + cmd + "\" for it.")
+				}
+
+				t.Metadata.CustomData[name] = strings.ToLower(cmd)
+			}
+		}
+
 		// Check if the column we're working with has a FK constraint
 		for _, fk := range fks {
 			if fk.ColumnName == col.Name {
