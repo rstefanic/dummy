@@ -12,6 +12,7 @@ import (
 
 	"dummy/commands"
 	"dummy/sqldatabase"
+	"dummy/sqldatabase/drivers"
 )
 
 func main() {
@@ -48,7 +49,12 @@ func main() {
 		fmt.Println("")
 	}
 
-	sqlDb, err := sqldatabase.New(config.Server.User, config.Server.Password, config.Server.Host, config.Server.Name)
+	driver, err := drivers.NewPostgresDriver(config.Server.User, config.Server.Password, config.Server.Host, config.Server.Name)
+	if err != nil {
+		panic("(drivers.NewPostgresqlDriver): " + err.Error())
+	}
+
+	sqlDb, err := sqldatabase.New(driver)
 	if err != nil {
 		panic("(sqldatabase.New): " + err.Error())
 	}

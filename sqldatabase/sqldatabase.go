@@ -2,13 +2,15 @@ package sqldatabase
 
 import (
 	"database/sql"
-	"fmt"
+
+	"dummy/sqldatabase/drivers"
 )
 
-// SqlDatabase is a handles the connection to a SqlDatabase and retains information
-// about the database that it's connected to (e.g. Foreign Keys)
+// SqlDatabase maintains the driver which is a handle to the underlying
+// SqlDatabase connection with information about the database that we
+// are connected to.
 type SqlDatabase struct {
-	db          *sql.DB
+	Driver      drivers.SqlDatabaseDriver
 	ForeignKeys map[string][]ForeignKeyRelation
 	Tables      []Table
 }
@@ -23,28 +25,21 @@ type ForeignKeyRelation struct {
 	ForeignColumnName  string
 }
 
-// Creates a new SqlDatabase. Currently only supports connecting to a PostgreSQL database.
-func New(user, password, host, name string) (*SqlDatabase, error) {
-	conn := fmt.Sprintf("postgresql://%s:%s@%s/%s?sslmode=disable", user, password, host, name)
-	db, err := sql.Open("postgres", conn)
-	if err != nil {
-		return nil, err
-	}
-
-	fks, err := foreignKeyRelations(db)
+func New(driver drivers.SqlDatabaseDriver) (*SqlDatabase, error) {
+	fks, err := foreignKeyRelations(driver.Database())
 	if err != nil {
 		return nil, err
 	}
 
 	return &SqlDatabase{
-		db:          db,
+		Driver:      driver,
 		ForeignKeys: fks,
 		Tables:      make([]Table, 0),
 	}, nil
 }
 
 func (sqlDb *SqlDatabase) Close() {
-	sqlDb.db.Close()
+	sqlDb.Driver.Database().Close()
 }
 
 func foreignKeyRelations(db *sql.DB) (map[string][]ForeignKeyRelation, error) {
@@ -122,7 +117,7 @@ func queryForeignKeyRelations(db *sql.DB) ([]ForeignKeyRelation, error) {
 func (sqlDb *SqlDatabase) GetTableColumns(table string) ([]Column, error) {
 	var columns []Column
 
-	rows, err := sqlDb.db.Query(`
+	rows, err := sqlDb.Driver.Database().Query(`
 		SELECT column_name, ordinal_position, column_default, is_nullable, data_type,
 		character_maximum_length, character_octet_length, numeric_precision,
 		numeric_precision_radix, numeric_scale, datetime_precision, udt_name,
