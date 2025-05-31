@@ -1,12 +1,14 @@
-package postgresql
+package sqldatabase
 
 import (
 	"database/sql"
-	"dummy/commands"
 	"errors"
 	"regexp"
 	"slices"
 	"strings"
+
+	"dummy/commands"
+	"dummy/generate"
 )
 
 type Table struct {
@@ -51,16 +53,6 @@ type Column struct {
 	IdentityMaximum        sql.NullInt32
 	IdentityMinimum        sql.NullInt32
 	IsUpdateable           string
-}
-
-type ForeignKeyRelation struct {
-	TableSchema        string
-	ConstraintName     string
-	TableName          string
-	ColumnName         string
-	ForeignTableSchema string
-	ForeignTableName   string
-	ForeignColumnName  string
 }
 
 func (t *Table) Validate(cmds commands.TableCommands, fks []ForeignKeyRelation) error {
@@ -165,7 +157,7 @@ func (t *Table) CreateData(count int) error {
 			}
 
 			var value string
-			value, err := fakeData(col.DataType, col.UdtName, col.Name, &t.Metadata.CustomData)
+			value, err := generate.FakeData(col.DataType, col.UdtName, col.Name, &t.Metadata.CustomData)
 			if err != nil {
 				return err
 			}

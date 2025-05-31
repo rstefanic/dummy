@@ -11,7 +11,7 @@ import (
 	_ "github.com/lib/pq"
 
 	"dummy/commands"
-	"dummy/postgresql"
+	"dummy/sqldatabase"
 )
 
 func main() {
@@ -48,31 +48,25 @@ func main() {
 		fmt.Println("")
 	}
 
-	psqlDb, err := postgresql.New(config.Server.User, config.Server.Password, config.Server.Host, config.Server.Name)
+	sqlDb, err := sqldatabase.New(config.Server.User, config.Server.Password, config.Server.Host, config.Server.Name)
 	if err != nil {
-		panic("(postgresql.New): " + err.Error())
+		panic("(sqldatabase.New): " + err.Error())
 	}
-	defer psqlDb.Close()
-
-	fks, err := psqlDb.ForeignKeyRelations()
-	if err != nil {
-		panic("(postgresql.ForeignKeyRelations): " + err.Error())
-	}
+	defer sqlDb.Close()
 
 	for i, table := range config.Tables {
 		if i > 0 {
 			fmt.Print("\n\n")
 		}
 
-		var t = postgresql.NewTable(table.Name)
-
-		columns, err := psqlDb.GetTableColumns(t.Name)
+		var t = sqldatabase.NewTable(table.Name)
+		columns, err := sqlDb.GetTableColumns(t.Name)
 		if err != nil {
-			panic("(postgresql.GetTableData): " + err.Error())
+			panic("(sqldatabase.GetTableColumns): " + err.Error())
 		}
 		t.Columns = columns
 
-		err = t.Validate(table, fks[table.Name])
+		err = t.Validate(table, sqlDb.ForeignKeys[table.Name])
 		if err != nil {
 			panic(err)
 		}

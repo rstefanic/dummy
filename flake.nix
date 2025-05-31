@@ -13,10 +13,11 @@
       packages = forAllSystems (system:
         let
           pkgs = nixpkgsFor.${system};
-        in
+        in rec
         {
           inherit (self.checks.${system}.default) driverInteractive;
           dummy = pkgs.callPackage ./. { };
+          default = dummy;
         });
 
       devShells = forAllSystems (system:

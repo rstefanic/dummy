@@ -1,4 +1,4 @@
-package postgresql
+package sqldatabase
 
 import (
 	"dummy/commands"
@@ -62,7 +62,7 @@ func TestCreateData(t *testing.T) {
 func TestToPsqlStatement(t *testing.T) {
 	var tblCmds commands.TableCommands
 	table := createFakeTable("fake_table")
-	table.Validate(tblCmds)
+	table.Validate(tblCmds, make([]ForeignKeyRelation, 0))
 
 	table.InsertRows = append(table.InsertRows, []string{"DEFAULT", "Bill Bob", "2025-04-12 10:00:00 UTC"})
 	table.InsertRows = append(table.InsertRows, []string{"DEFAULT", "Jim George", "2025-04-12 10:00:00 UTC"})

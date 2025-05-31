@@ -9,5 +9,5 @@ pkgs.buildGoModule {
   # In 'nix develop', we don't need a copy of the source tree
   # in the Nix store.
   src = ./.;
-  vendorHash = "sha256-6bbLkCnQy/LWUqMGktHxZ6JVGoWVJ0CtCyKONQZk9q0=";
+  vendorHash = "sha256-Y+E58mWniwSjDQOV4gF7LqTm/4GGNygsw7Ils+atAsk=";
 }

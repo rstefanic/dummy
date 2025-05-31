@@ -1,4 +1,4 @@
-package postgresql
+package generate
 
 import (
 	"errors"
@@ -10,7 +10,7 @@ import (
 	"github.com/brianvoe/gofakeit/v7"
 )
 
-func fakeData(datatype, udt, columnName string, customData *map[string]string) (string, error) {
+func FakeData(datatype, udt, columnName string, customData *map[string]string) (string, error) {
 	switch datatype {
 	case "ARRAY":
 		underlyingDt, err := udtToPsqlDatatype(udt)
@@ -18,7 +18,7 @@ func fakeData(datatype, udt, columnName string, customData *map[string]string) (
 			return "", err
 		}
 
-		value, err := fakeData(underlyingDt, "", columnName, customData)
+		value, err := FakeData(underlyingDt, "", columnName, customData)
 		if err != nil {
 			return "", err
 		}
