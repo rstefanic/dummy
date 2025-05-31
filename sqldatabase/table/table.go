@@ -1,7 +1,6 @@
-package sqldatabase
+package table
 
 import (
-	"database/sql"
 	"errors"
 	"regexp"
 	"slices"
@@ -10,7 +9,8 @@ import (
 	"dummy/commands"
 	"dummy/generate"
 
-	fkr "dummy/sqldatabase/foreignkeyrelation"
+	. "dummy/sqldatabase/column"
+	. "dummy/sqldatabase/foreignkeyrelation"
 )
 
 type Table struct {
@@ -34,30 +34,7 @@ type Metadata struct {
 	identityColumns []int
 }
 
-type Column struct {
-	Name                   string
-	OrdinalPosition        int
-	ColumnDefault          sql.NullString
-	IsNullable             string
-	DataType               string
-	CharacterMaximumLength sql.NullInt32
-	CharacterOctetLength   sql.NullInt32
-	NumericPrecision       sql.NullInt32
-	NumericPrecisionRadix  sql.NullInt32
-	NumericScale           sql.NullInt32
-	DatetimePrecision      sql.NullInt16
-	UdtName                string
-	IsSelfReferencing      string
-	IsIdentity             string
-	IdentityGeneration     sql.NullString
-	IdentityStart          sql.NullInt32
-	IdentityIncrement      sql.NullInt32
-	IdentityMaximum        sql.NullInt32
-	IdentityMinimum        sql.NullInt32
-	IsUpdateable           string
-}
-
-func (t *Table) Validate(cmds commands.TableCommands, fks []fkr.ForeignKeyRelation) error {
+func (t *Table) Validate(cmds commands.TableCommands, fks []ForeignKeyRelation) error {
 	if len(t.Columns) == 0 {
 		return errors.New("Columns on table " + t.Name + " is empty")
 	}

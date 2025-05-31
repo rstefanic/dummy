@@ -1,9 +1,12 @@
-package sqldatabase
+package table
 
 import (
-	"dummy/commands"
 	"strings"
 	"testing"
+
+	"dummy/commands"
+	. "dummy/sqldatabase/column"
+	. "dummy/sqldatabase/foreignkeyrelation"
 )
 
 func createFakeColumn(name string, ordinalPosition int, isNullable bool, udtName string, isIdentity bool) *Column {

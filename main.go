@@ -13,6 +13,7 @@ import (
 	"dummy/commands"
 	"dummy/sqldatabase"
 	"dummy/sqldatabase/drivers"
+	"dummy/sqldatabase/table"
 )
 
 func main() {
@@ -49,7 +50,7 @@ func main() {
 		fmt.Println("")
 	}
 
-	driver, err := drivers.NewPostgresDriver(config.Server.User, config.Server.Password, config.Server.Host, config.Server.Name)
+	driver, err := drivers.NewPostgresqlDriver(config.Server.User, config.Server.Password, config.Server.Host, config.Server.Name)
 	if err != nil {
 		panic("(drivers.NewPostgresqlDriver): " + err.Error())
 	}
@@ -60,19 +61,19 @@ func main() {
 	}
 	defer sqlDb.Close()
 
-	for i, table := range config.Tables {
+	for i, tbl := range config.Tables {
 		if i > 0 {
 			fmt.Print("\n\n")
 		}
 
-		var t = sqldatabase.NewTable(table.Name)
-		columns, err := sqlDb.GetTableColumns(t.Name)
+		t := table.NewTable(tbl.Name)
+		columns, err := sqlDb.Driver.TableColumns(t.Name)
 		if err != nil {
-			panic("(sqldatabase.GetTableColumns): " + err.Error())
+			panic("(sqlDb.Driver.TableColumns): " + err.Error())
 		}
 		t.Columns = columns
 
-		err = t.Validate(table, sqlDb.ForeignKeys[table.Name])
+		err = t.Validate(tbl, sqlDb.ForeignKeys[tbl.Name])
 		if err != nil {
 			panic(err)
 		}
@@ -81,8 +82,8 @@ func main() {
 
 		{
 			var count int
-			if table.Count != 0 {
-				count = table.Count
+			if tbl.Count != 0 {
+				count = tbl.Count
 			} else {
 				count = defaultCount
 			}
