@@ -9,6 +9,8 @@ import (
 
 	"dummy/commands"
 	"dummy/generate"
+
+	fkr "dummy/sqldatabase/foreignkeyrelation"
 )
 
 type Table struct {
@@ -55,7 +57,7 @@ type Column struct {
 	IsUpdateable           string
 }
 
-func (t *Table) Validate(cmds commands.TableCommands, fks []ForeignKeyRelation) error {
+func (t *Table) Validate(cmds commands.TableCommands, fks []fkr.ForeignKeyRelation) error {
 	if len(t.Columns) == 0 {
 		return errors.New("Columns on table " + t.Name + " is empty")
 	}

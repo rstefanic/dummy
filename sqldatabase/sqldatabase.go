@@ -1,9 +1,8 @@
 package sqldatabase
 
 import (
-	"database/sql"
-
 	"dummy/sqldatabase/drivers"
+	fkr "dummy/sqldatabase/foreignkeyrelation"
 )
 
 // SqlDatabase maintains the driver which is a handle to the underlying
@@ -11,22 +10,12 @@ import (
 // are connected to.
 type SqlDatabase struct {
 	Driver      drivers.SqlDatabaseDriver
-	ForeignKeys map[string][]ForeignKeyRelation
+	ForeignKeys map[string][]fkr.ForeignKeyRelation
 	Tables      []Table
 }
 
-type ForeignKeyRelation struct {
-	TableSchema        string
-	ConstraintName     string
-	TableName          string
-	ColumnName         string
-	ForeignTableSchema string
-	ForeignTableName   string
-	ForeignColumnName  string
-}
-
 func New(driver drivers.SqlDatabaseDriver) (*SqlDatabase, error) {
-	fks, err := foreignKeyRelations(driver.Database())
+	fks, err := driver.ForeignKeyRelations()
 	if err != nil {
 		return nil, err
 	}
@@ -40,78 +29,6 @@ func New(driver drivers.SqlDatabaseDriver) (*SqlDatabase, error) {
 
 func (sqlDb *SqlDatabase) Close() {
 	sqlDb.Driver.Database().Close()
-}
-
-func foreignKeyRelations(db *sql.DB) (map[string][]ForeignKeyRelation, error) {
-	fkMapping := make(map[string][]ForeignKeyRelation)
-	fks, err := queryForeignKeyRelations(db)
-
-	if err != nil {
-		return make(map[string][]ForeignKeyRelation), err
-	}
-
-	for _, fk := range fks {
-		table := fk.TableName
-		val, ok := fkMapping[table]
-		if !ok {
-			val = make([]ForeignKeyRelation, 0)
-		}
-
-		val = append(val, fk)
-		fkMapping[table] = val
-	}
-
-	return fkMapping, nil
-}
-
-func queryForeignKeyRelations(db *sql.DB) ([]ForeignKeyRelation, error) {
-	var fks []ForeignKeyRelation
-
-	rows, err := db.Query(`
-		SELECT
-			tc.table_schema, 
-			tc.constraint_name, 
-			tc.table_name, 
-			kcu.column_name, 
-			ccu.table_schema AS foreign_table_schema,
-			ccu.table_name AS foreign_table_name,
-			ccu.column_name AS foreign_column_name 
-		FROM information_schema.table_constraints AS tc 
-		JOIN information_schema.key_column_usage AS kcu
-			ON tc.constraint_name = kcu.constraint_name
-			AND tc.table_schema = kcu.table_schema
-		JOIN information_schema.constraint_column_usage AS ccu
-			ON ccu.constraint_name = tc.constraint_name
-		WHERE tc.constraint_type = 'FOREIGN KEY'
-		ORDER BY table_name`,
-	)
-
-	if err != nil {
-		return make([]ForeignKeyRelation, 0), err
-	}
-
-	defer rows.Close()
-
-	for rows.Next() {
-		var fk ForeignKeyRelation
-		err := rows.Scan(
-			&fk.TableSchema,
-			&fk.ConstraintName,
-			&fk.TableName,
-			&fk.ColumnName,
-			&fk.ForeignTableSchema,
-			&fk.ForeignTableName,
-			&fk.ForeignColumnName,
-		)
-
-		if err != nil {
-			return make([]ForeignKeyRelation, 0), err
-		}
-
-		fks = append(fks, fk)
-	}
-
-	return fks, nil
 }
 
 func (sqlDb *SqlDatabase) GetTableColumns(table string) ([]Column, error) {
