@@ -10,5 +10,5 @@ import (
 type SqlDatabaseDriver interface {
 	Database() *sql.DB
 	ForeignKeyRelations() (map[string][]ForeignKeyRelation, error)
-	TableColumns(table string) ([]Column, error)
+	TableColumns(tableName string) ([]Column, error)
 }

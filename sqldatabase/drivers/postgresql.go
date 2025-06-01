@@ -26,7 +26,7 @@ func (pd *PostgresqlDriver) Database() *sql.DB {
 	return pd.database
 }
 
-func (pd *PostgresqlDriver) TableColumns(table string) ([]Column, error) {
+func (pd *PostgresqlDriver) TableColumns(tableName string) ([]Column, error) {
 	var columns []Column
 
 	rows, err := pd.Database().Query(`
@@ -38,7 +38,7 @@ func (pd *PostgresqlDriver) TableColumns(table string) ([]Column, error) {
 			FROM information_schema.columns
 			WHERE table_name = $1
 			ORDER BY ordinal_position`,
-		table,
+		tableName,
 	)
 
 	if err != nil {
