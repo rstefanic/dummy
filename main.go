@@ -54,12 +54,12 @@ func main() {
 	if err != nil {
 		panic("(drivers.NewPostgresqlDriver): " + err.Error())
 	}
+	defer driver.Database().Close()
 
 	sqlDb, err := sqldatabase.New(driver)
 	if err != nil {
 		panic("(sqldatabase.New): " + err.Error())
 	}
-	defer sqlDb.Close()
 
 	for i, tbl := range config.Tables {
 		if i > 0 {

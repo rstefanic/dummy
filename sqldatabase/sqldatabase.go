@@ -28,7 +28,3 @@ func New(driver drivers.SqlDatabaseDriver) (*SqlDatabase, error) {
 		Tables:      make([]Table, 0),
 	}, nil
 }
-
-func (sqlDb *SqlDatabase) Close() {
-	sqlDb.Driver.Database().Close()
-}
