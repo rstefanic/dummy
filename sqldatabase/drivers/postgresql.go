@@ -3,9 +3,12 @@ package drivers
 import (
 	"database/sql"
 	"fmt"
+	"slices"
+	"strings"
 
 	. "dummy/sqldatabase/column"
 	. "dummy/sqldatabase/foreignkeyrelation"
+	. "dummy/sqldatabase/table"
 )
 
 type PostgresqlDriver struct {
@@ -138,4 +141,59 @@ func queryForeignKeyRelations(db *sql.DB) ([]ForeignKeyRelation, error) {
 	}
 
 	return fks, nil
+}
+
+func (pd *PostgresqlDriver) InsertStatement(t *Table) string {
+	var output strings.Builder
+
+	output.WriteString("INSERT INTO ")
+	output.WriteString(t.Name)
+	output.WriteString(" (")
+
+	// Write out the column names
+	{
+		written := 0
+		for i, col := range t.Columns {
+			// Skip identity columns since we've already
+			// generated the data without this column
+			if slices.Contains(t.Metadata.IdentityColumns, i) {
+				continue
+			}
+
+			if written > 0 {
+				output.WriteRune(',')
+			}
+
+			output.WriteString(col.Name)
+			written += 1
+		}
+	}
+
+	output.WriteString(") VALUES ")
+
+	// Build the main part of the insert statement from the generated data
+	for i := range len(t.InsertRows) {
+		if i > 0 {
+			output.WriteRune(',')
+		}
+
+		// Build the current row
+		{
+			output.WriteRune('(')
+			written := 0
+			for _, row := range t.InsertRows[i] {
+				if written > 0 {
+					output.WriteRune(',')
+				}
+
+				output.WriteString(row)
+				written += 1
+			}
+
+			output.WriteRune(')')
+		}
+	}
+
+	output.WriteRune(';')
+	return output.String()
 }

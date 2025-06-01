@@ -94,7 +94,7 @@ func main() {
 			}
 		}
 
-		fmt.Println(t.ToPsqlStatement())
+		fmt.Println(sqlDb.Driver.InsertStatement(t))
 	}
 }
 

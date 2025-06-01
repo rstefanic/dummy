@@ -1,4 +1,4 @@
-package table
+package drivers
 
 import (
 	"strings"
@@ -7,6 +7,7 @@ import (
 	"dummy/commands"
 	. "dummy/sqldatabase/column"
 	. "dummy/sqldatabase/foreignkeyrelation"
+	. "dummy/sqldatabase/table"
 )
 
 func createFakeColumn(name string, ordinalPosition int, isNullable bool, udtName string, isIdentity bool) *Column {
@@ -49,20 +50,9 @@ func createFakeTable(tableName string) *Table {
 	return table
 }
 
-func TestCreateData(t *testing.T) {
-	table := createFakeTable("fake_table")
-	err := table.CreateData(3)
-	if err != nil {
-		t.Errorf(`Error calling "table.CreateData": %v`, err)
-	}
-
-	rowsCount := len(table.InsertRows)
-	if rowsCount != 3 {
-		t.Errorf(`Expected "table.CreateData" to create 3 rows, got %d rows.`, rowsCount)
-	}
-}
-
 func TestToPsqlStatement(t *testing.T) {
+	driver := PostgresqlDriver{database: nil}
+
 	var tblCmds commands.TableCommands
 	table := createFakeTable("fake_table")
 	table.Validate(tblCmds, make([]ForeignKeyRelation, 0))
@@ -70,7 +60,7 @@ func TestToPsqlStatement(t *testing.T) {
 	table.InsertRows = append(table.InsertRows, []string{"DEFAULT", "Bill Bob", "2025-04-12 10:00:00 UTC"})
 	table.InsertRows = append(table.InsertRows, []string{"DEFAULT", "Jim George", "2025-04-12 10:00:00 UTC"})
 
-	actual := table.ToPsqlStatement()
+	actual := driver.InsertStatement(table)
 	expected := "INSERT INTO fake_table (id,name,created_at) VALUES (DEFAULT,Bill Bob,2025-04-12 10:00:00 UTC),(DEFAULT,Jim George,2025-04-12 10:00:00 UTC);"
 
 	if strings.Compare(actual, expected) != 0 {
